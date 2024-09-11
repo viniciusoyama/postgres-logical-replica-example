@@ -1,0 +1,42 @@
+services:
+  postgres-main:
+    image: postgres:16.4
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_main:/var/lib/postgresql/data
+    # command: |
+    #   postgres 
+    #   -c wal_level=logical 
+  postgres-replica:
+    image: postgres:16.4
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_replica:/var/lib/postgresql/data
+    depends_on:
+      - postgres-main
+  pgadmin:
+    image: elestio/pgadmin:REL-8_10
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@email.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+    depends_on:
+      - postgres-main
+      - postgres-replica
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./pg-admin-storage:/var/lib/pgadmin/storage
+
+
+volumes:
+  postgres_main:
+  postgres_replica:
+  pgadmin-data:
